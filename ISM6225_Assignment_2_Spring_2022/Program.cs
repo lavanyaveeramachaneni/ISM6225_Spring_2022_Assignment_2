@@ -8,6 +8,9 @@ WRITE YOUR CODE IN THE RESPECTIVE QUESTION FUNCTION BLOCK
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ISM6225_Assignment_2_Spring_2022
 {
@@ -109,7 +112,7 @@ namespace ISM6225_Assignment_2_Spring_2022
             Console.WriteLine("Minimum number of operations required are {0}", minLen);
             Console.WriteLine();
         }
-    
+
 
         /*
         
@@ -128,15 +131,32 @@ namespace ISM6225_Assignment_2_Spring_2022
         Output: 4
         */
 
+        /* Recomendations: https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search#:~:text=Binary%20search%20is%20an%20efficient,possible%20locations%20to%20just%20one. 
+         */
         public static int SearchInsert(int[] nums, int target)
         {
             try
             {
-                //Write your Code here.
-                return -1;
-            }
-            catch (Exception)
+                int left = 0, right= nums.Length-1;
+                //looping over the given array from left to right
+                while(left < right)
+                {
+                    //Finding the Mid element of the array and returning mid element if is is target element
+                    int mid = left+(right-left)/2;
+                    if(nums[mid] == target)
+                        return mid;
+                    //travelling to the right as target is smaller than mid
+                    if (nums[mid] > target)
+                        right = mid - 1;
+                    //travelling to the right as target is larger than mid
+                    else
+                        left = mid + 1;
+                }
+                return left;
+             }//whhile end here
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
         }
@@ -159,18 +179,38 @@ namespace ISM6225_Assignment_2_Spring_2022
         Output: "a"
         */
 
+        /* https://www.tutorialspoint.com/csharp/csharp_regular_expressions.htm 
+         https://www.geeksforgeeks.org/c-sharp-dictionary-with-examples/
+         */
         public static string MostCommonWord(string paragraph, string[] banned)
         {
             try
             {
-                
-                //write your code here.
-
-                return "";
+                paragraph = paragraph.ToLower();
+                //using Regular expression for replacing characters other than a-z with space
+                var regexItem = new Regex(@"[^a-z ]+");
+                paragraph = regexItem.Replace(paragraph, String.Empty);
+                //replacing banned words with empty
+                foreach (string b in banned)
+                    paragraph = paragraph.Replace(b, string.Empty);
+                //Creating dictonary for storing string and it's occurance.
+                Dictionary<string, int> dict = new Dictionary<string, int>();
+                //paragraph array to remove empty entries of banned words and spliiting with space
+                string[] paraArray = paragraph.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                //Adding strings to the dictonary 
+                foreach (string item in paraArray)
+                {
+                    if (!dict.ContainsKey(item))
+                        dict.Add(item, 1);
+                    else
+                        dict[item]++;
+                }//foreach ends here
+                //returning Maximum repeated non banned key value
+                return dict.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
         }
@@ -196,16 +236,34 @@ namespace ISM6225_Assignment_2_Spring_2022
         Explanation: There are no lucky numbers in the array.
          */
 
+        /* https://www.geeksforgeeks.org/c-sharp-dictionary-with-examples/ */
+
         public static int FindLucky(int[] arr)
         {
             try
             {
-                //write your code here.
-                return 0;
+                int luckyNum = -1;
+                var dict = new Dictionary<int, int>();
+                //Adding elemnts and updating element keys with their frequency
+                foreach (var n in arr)
+                {
+                    //element is repeated, incrmenating value
+                    if (dict.ContainsKey(n))
+                        dict[n]++;
+                    else
+                        dict.Add(n, 1);
+                }
+                foreach (var li in dict)
+                {
+                    //comparing Key and values which are added in dictonary and returing max key
+                    if (li.Key == li.Value)
+                        luckyNum = Math.Max(luckyNum, li.Key);
+                }
+                return luckyNum;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
 
@@ -231,16 +289,48 @@ namespace ISM6225_Assignment_2_Spring_2022
 
         */
 
+        /* Learned how to use loops efficiently and learned about different strings operations */
+
         public static string GetHint(string secret, string guess)
         {
             try
             {
-                //write your code here.
-                return "";
+                string tmp1, tmp2;
+                tmp1 = secret;
+                tmp2 = guess;
+                int bulls = 0;
+                int cows = 0;
+                int currentIndex = 0;
+                int index = 0;
+                //Looping on secret string
+                while (index < tmp1.Length)
+                {
+                    //if both secret and guess values are equal, removing it from string and incrementing bull value
+                    if (tmp1[index] == tmp2[index])
+                    {
+                        secret = secret.Remove(currentIndex, 1);
+                        guess = guess.Remove(currentIndex, 1);
+                        bulls++;
+                    }
+                    else//incrementing currentindex and index value t0 go to the next location
+                        currentIndex++;
+                    index++;
+                }
+                //If secret string modified, looping on it otherwise travelling on original secret string 
+                for (int i = 0; i < secret.Length; i++)
+                {
+                    //if guess number is in secret string remove that from guess string and incrment cow value
+                    if (guess.Any(k => k == secret[i]))
+                    {
+                        guess = guess.Remove(guess.IndexOf(secret[i]), 1);
+                        cows++;
+                    }
+                }
+                return $"{bulls}A{cows}B";
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
         }
@@ -261,16 +351,43 @@ namespace ISM6225_Assignment_2_Spring_2022
 
         */
 
+        /* Learned how to use loops efficiently and learned about different strings operations 
+         https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/strings/ 
+        */
         public static List<int> PartitionLabels(string s)
         {
             try
             {
-                //write your code here.
-                
-                return new List<int>() {} ;
+                int lastIndex = 0;
+                int currentIndex = 0;
+                int start = 0;
+                List<int> result = new List<int>();
+                //storing original string into tmp
+                string tmp = s;
+                while (s.Length > 0)
+                {
+                    //identify the last index of each character on temporary string
+                    if (lastIndex < tmp.LastIndexOf(s[0]))
+                        lastIndex = tmp.LastIndexOf(s[0]);
+                    //remove charcater after setting of lastindex
+                    s = s.Remove(0, 1);
+                    if (lastIndex == currentIndex)
+                    {
+                        //storing the remaining string after each partition
+                        tmp = s;
+                        //adding the index value to the list
+                        result.Add((currentIndex) + 1);
+                        //resetting index values to 0
+                        lastIndex = currentIndex = 0;
+                    }
+                    else
+                        currentIndex++;
+                }
+                return result;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
         }
@@ -306,16 +423,41 @@ namespace ISM6225_Assignment_2_Spring_2022
 
          */
 
+        /* 
+         https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-6.0
+        https://www.c-sharpcorner.com/article/get-string-ascii-value/
+         */
         public static List<int> NumberOfLines(int[] widths,string s)
         {
             try
             {
                 //write your code here.
-
-                return new List<int>() { };
-            }
-            catch (Exception)
+                List<int> lines = new List<int>();
+                Dictionary<char, int> dict = new Dictionary<char, int>();
+                int j = 0;
+                int currentPixelCount = 0;
+                int linesCount = 1;
+                //Adding Ascii characters to dictonary with the given widths as values
+                for (int i = 97; i < 123; i++, j++)
+                    dict.Add((char)i, widths[j]);
+                foreach (var item in s.ToCharArray())
+                {
+                    //adding each item value untill it's total is 100
+                    if (currentPixelCount + dict[item] <= 100)
+                        currentPixelCount += dict[item];
+                    //if it's more than 100 with given input, add remaining items in another line
+                    else
+                    {
+                        currentPixelCount = 0;
+                        currentPixelCount += dict[item];
+                        linesCount++;
+                    }
+                }
+                return new List<int>() { linesCount, currentPixelCount };//returing last line and it's pixel count
+              }
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
 
@@ -345,16 +487,42 @@ namespace ISM6225_Assignment_2_Spring_2022
 
         */
 
+        /* https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-6.0
+         https://www.tutorialsteacher.com/csharp/csharp-dictionary 
+         */
         public static bool IsValid(string bulls_string10)
         {
             try
             {
-                //write your code here.
-
-                return false;
+                //if string is odd return false
+                if (bulls_string10.Length % 2 == 1) return false;
+                //Creating dictonary and adding combinations to dictonary as Key,values
+                Dictionary<char, char> combinations = new Dictionary<char, char>();
+                combinations.Add('(', ')');
+                combinations.Add('{', '}');
+                combinations.Add('[', ']');
+                List<char> list = new List<char>();
+                foreach (char begin in bulls_string10.ToCharArray())
+                {
+                    //Adding all open braces to the list
+                    if (begin == '[' || begin == '{' || begin == '(')
+                        list.Add(begin);
+                    else if (list.Count > 0)
+                    {
+                        //Comparing braces and, both the characters represent one complete combination, remove that combination from list
+                        if (list[list.Count - 1] == combinations.Where(k => k.Value == begin).Select(p => p.Key).Single())
+                            list.RemoveAt(list.Count - 1);
+                        //otherwise break
+                        else
+                            break;
+                    }
+                    else return false;//returing false if ther is no open braces.
+                }
+                return list.Count == 0;//returning true if final list count is 0.
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
 
@@ -387,17 +555,32 @@ namespace ISM6225_Assignment_2_Spring_2022
         There are 2 different transformations: "--...-." and "--...--.".
 
         */
+        /* https://www.programmersranch.com/2013/05/c-basics-morse-code-converter-using.html 
+         https://www.tutorialsteacher.com/csharp/csharp-stringbuilder
+         */
 
         public static int UniqueMorseRepresentations(string[] words)
         {
             try
             {
-                //write your code here.
-
-                return 0;
+                //Adding all morse charcaters into string array
+                string[] morseCharacter = new string[] { ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.." };
+                HashSet<string> hs = new HashSet<string>();
+                //traversing on given string array
+                for (int i = 0; i < words.Length; i++)
+                {
+                    var sb = new StringBuilder();
+                    //appending each charcater into string builder
+                    foreach (var ch in words[i])
+                        sb.Append(morseCharacter[ch - 'a']);
+                    //Adding it to hashset to remove duplicates
+                    hs.Add(sb.ToString());
+                }
+                return hs.Count();//returning count of hashset
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message.ToString());
                 throw;
             }
 
